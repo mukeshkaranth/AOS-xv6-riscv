@@ -7,6 +7,9 @@
 #include "syscall.h"
 #include "defs.h"
 
+//Initialize sysCallCount to 0;
+uint sysCallCounts = 0;
+
 // Fetch the uint64 at addr from the current process.
 int
 fetchaddr(uint64 addr, uint64 *ip)
@@ -101,6 +104,9 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_salutation(void); // Syscall declaration
+extern uint64 sys_sysinfo(void); // Syscall to fetch system information
+extern uint64 sys_procinfo(void); //Syscall to fetch process information
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -126,6 +132,9 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_salutation]  sys_salutation, // Syscall entry
+[SYS_sysinfo] sys_sysinfo, // System Call for system information
+[SYS_procinfo] sys_procinfo, // Process information
 };
 
 void
@@ -139,6 +148,8 @@ syscall(void)
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
     p->trapframe->a0 = syscalls[num]();
+    p->sysCallCount++;
+    sysCallCounts++;
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);

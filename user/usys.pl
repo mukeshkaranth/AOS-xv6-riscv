@@ -36,3 +36,9 @@ entry("getpid");
 entry("sbrk");
 entry("sleep");
 entry("uptime");
+#  Salutaion syscall for the user
+entry("salutation"); 
+# system information for user
+entry("sysinfo");
+# process information for the user
+entry("procinfo");

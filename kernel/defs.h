@@ -63,6 +63,7 @@ void            ramdiskrw(struct buf*);
 void*           kalloc(void);
 void            kfree(void *);
 void            kinit(void);
+int             memkFreePages(void); // Function to get free pages of the system.
 
 // log.c
 void            initlog(int, struct superblock*);
@@ -106,6 +107,10 @@ void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
+void            salutation(int n); // Salutation
+void            sysCallNumber(int count); //System Call count
+int             procMemSize(void); // Process memory size
+int             procCount(void); //process count in the system
 
 // swtch.S
 void            swtch(struct context*, struct context*);
@@ -134,6 +139,7 @@ int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
 
 // syscall.c
+extern uint     sysCallCounts;
 void            argint(int, int*);
 int             argstr(int, char*, int);
 void            argaddr(int, uint64 *);

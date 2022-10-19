@@ -124,6 +124,8 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  // To reset count for each process
+  p->sysCallCount = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -680,4 +682,39 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+//Returns count of number of processes currently in the system.
+int
+procCount(void)
+{
+  static char *states[] = {
+  [SLEEPING]  "sleep ",
+  [RUNNABLE]  "runble",
+  [RUNNING]   "run   ",
+  [ZOMBIE]    "zombie"
+  };
+  struct proc *p;
+  uint64 count = 0;
+
+  for(p = proc; p < &proc[NPROC]; p++){
+    if(p->state == UNUSED)
+      continue;
+    if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
+      count++;
+  }
+  return count;
+}
+
+// Print a string that is appended by a number
+// given by the user.
+void salutation(int n)
+{
+  printf("Salutations number %d! \n", n);
+}
+
+// Print the total count of system calls made so far by the system, 
+// apart from the latest call.
+void sysCallNumber(int count) {
+  printf("Total number of system calls made: %d\n",count);
 }

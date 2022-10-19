@@ -89,3 +89,60 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// print a hello statement that salutes the user upon syscall.
+uint64
+sys_salutation(void)
+{
+  int n;
+  argint(0, &n);
+  salutation(n);
+  printf("number of running processes: %d\n", procCount());
+  procdump();
+  return 0;
+}
+
+// Utility function to return number of process, 
+// number of system calls made or number of free
+// memory pages present in the system.
+uint64
+sys_sysinfo(void)
+{
+  int n;
+  argint(0, &n);
+  switch (n)
+  {
+    case 0:
+      return procCount();
+      break;
+    case 1:
+      return sysCallCounts;
+      break;
+    case 2:
+      return memkFreePages();
+      break;
+    
+    default:
+      printf("Error: parameter index out of bounds. Please provide a value from 0 to 2.\n");
+      exit(-1);
+      break;
+  }
+  return 0;
+}
+
+// Function to return information about the process
+// Parent process ID, System calls made by the process
+// and size of the process in pages.
+uint64
+sys_procinfo(void)
+{
+  uint64 n;
+  struct proc * process = myproc();
+  argaddr(0, &n);
+  int extraPage = process->sz % PGSIZE ? 1 : 0;
+  int nPages = process->sz/4096 + extraPage;
+  copyout(process->pagetable, n, (char *)&(process->parent->pid), sizeof(int));
+  copyout(process->pagetable, n+4, (char *)&(process->sysCallCount), sizeof(int));
+  copyout(process->pagetable, n+8, (char *)&(nPages), sizeof(int));
+  return 0;
+}

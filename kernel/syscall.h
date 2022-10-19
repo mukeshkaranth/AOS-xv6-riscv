@@ -20,3 +20,6 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+#define SYS_salutation 22 //Sample System call that says hello.
+#define SYS_sysinfo 23 //System call that gets the total number of system calls made so far.
+#define SYS_procinfo 24 // System call that fetches data related to the current process.
