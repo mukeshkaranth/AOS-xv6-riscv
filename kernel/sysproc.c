@@ -141,8 +141,9 @@ sys_procinfo(void)
   argaddr(0, &n);
   int extraPage = process->sz % PGSIZE ? 1 : 0;
   int nPages = process->sz/4096 + extraPage;
-  copyout(process->pagetable, n, (char *)&(process->parent->pid), sizeof(int));
-  copyout(process->pagetable, n+4, (char *)&(process->sysCallCount), sizeof(int));
-  copyout(process->pagetable, n+8, (char *)&(nPages), sizeof(int));
+  if((copyout(process->pagetable, n, (char *)&(process->parent->pid), sizeof(int))<0) || 
+  (copyout(process->pagetable, n+4, (char *)&(process->sysCallCount), sizeof(int)) < 0) ||
+  (copyout(process->pagetable, n+8, (char *)&(nPages), sizeof(int)) < 0))
+    return -1;
   return 0;
 }
