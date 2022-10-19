@@ -134,7 +134,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_salutation]  sys_salutation, // Syscall entry
 [SYS_sysinfo] sys_sysinfo, // System Call for system information
-[SYS_procinfo] sys_procinfo, // Process information
+[SYS_procinfo] sys_procinfo, // System call for Process information
 };
 
 void
