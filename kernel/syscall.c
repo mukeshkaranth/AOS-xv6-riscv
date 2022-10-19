@@ -148,6 +148,7 @@ syscall(void)
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
     p->trapframe->a0 = syscalls[num]();
+    //Increase count if system call is made
     p->sysCallCount++;
     sysCallCounts++;
   } else {
