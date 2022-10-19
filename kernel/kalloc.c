@@ -91,7 +91,7 @@ int  memkFreePages() {
     freePageCount++;
     r = r->next;
   }
-  freePageCount++; //In case we miss the last page
+  freePageCount++; //In case we miss the last page in the while loop.
   release(&kmem.lock);
   return freePageCount;
 }
