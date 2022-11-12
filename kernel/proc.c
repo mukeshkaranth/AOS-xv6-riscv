@@ -502,12 +502,16 @@ scheduler(void)
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
+        if (p->tickets == 0)
+          p->tickets = DEFAULT_TICKET_COUNT;
         ticket_count += p->tickets;
         // The process gets scheduled only if its ticket is in the winning range.
         if (ticket_count >= winner && !flag) {
           win_p = p;
           flag = 1;
         }
+      } else {
+        p->tickets = 0;
       }
       release(&p->lock);
     }
@@ -882,7 +886,7 @@ void scheduled_times(void) {
   for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if (p->state != UNUSED) {
-        printf("(%s): tickets: %d, ticks: %d\n", p->name,p->tickets, p->scheduledTimes);
+        printf("%d(%s): tickets: %d, ticks: %d\n",p->pid, p->name,p->tickets, p->scheduledTimes);
       }
       release(&p->lock);
   }

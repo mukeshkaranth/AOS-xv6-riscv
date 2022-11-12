@@ -1,5 +1,5 @@
 //Global constants
-#define DEFAULT_TICKET_COUNT 10
+#define DEFAULT_TICKET_COUNT 10000
 #define MAX_INT 2147483647
 #ifdef STRIDE
 #define STRIDE_CONSTANT 10000
