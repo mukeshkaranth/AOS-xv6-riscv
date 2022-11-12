@@ -26,6 +26,8 @@ int uptime(void);
 int salutation(int); // Salutation for user
 int sysinfo(int); // System Call Information
 int procinfo(struct pinfo *); // Process information
+int set_tickets(int); //Ticket allotment
+int scheduler_statistics(void); //scheduler statistics
 
 // ulib.c
 int stat(const char*, struct stat*);

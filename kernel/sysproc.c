@@ -146,3 +146,29 @@ sys_procinfo(void)
   copyout(process->pagetable, n+8, (char *)&(nPages), sizeof(int));
   return 0;
 }
+
+// Function to return information about the process
+// Parent process ID, System calls made by the process
+// and size of the process in pages.
+uint64
+sys_set_tickets(void)
+{
+  int n;
+  argint(0, &n);
+  if (n < 0)
+    ticket_initialization(DEFAULT_TICKET_COUNT);
+  else
+    ticket_initialization(n);
+
+  return 0;
+}
+
+// Function to return information about the process
+// Parent process ID, System calls made by the process
+// and size of the process in pages.
+uint64
+sys_scheduler_statistics(void)
+{
+  scheduled_times();
+  return 0;
+}

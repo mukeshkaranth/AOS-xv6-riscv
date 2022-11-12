@@ -21,5 +21,9 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 #define SYS_salutation 22 //Sample System call that says hello.
+//LAB-1
 #define SYS_sysinfo 23 //System call that gets the total number of system calls made so far.
 #define SYS_procinfo 24 // System call that fetches data related to the current process.
+//LAB-2
+#define SYS_set_tickets 25 //System call to allot some tickets to the process.
+#define SYS_scheduler_statistics 26 //System call to get the statistics of the scheduler.

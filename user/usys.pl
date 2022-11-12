@@ -38,7 +38,15 @@ entry("sleep");
 entry("uptime");
 #  Salutaion syscall for the user
 entry("salutation"); 
+
+#LAB-1
 # system information for user
 entry("sysinfo");
 # process information for the user
 entry("procinfo");
+
+#LAB-2
+# ticket allocation for process
+entry("set_tickets");
+# scheduler statistics
+entry("scheduler_statistics");

@@ -1,3 +1,10 @@
+//Global constants
+#define DEFAULT_TICKET_COUNT 10
+#define MAX_INT 2147483647
+#ifdef STRIDE
+#define STRIDE_CONSTANT 10000
+#endif
+
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
@@ -105,4 +112,12 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   uint sysCallCount;           // Number of System Calls made by the process
+  int tickets;                 // Number of tickets held by the process
+  int scheduledTimes;          // Number of times the process has acquired the CPU
+
+  //We initialize stride and pass attributes to the process incase STRIDE scheduling is used.
+  #ifdef STRIDE
+  int stride;                  //Current stride value of the procees
+  int pass;                    //This is a virtual time index of the next probable selection of this process.
+  #endif
 };
