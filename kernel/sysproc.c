@@ -151,7 +151,7 @@ sys_procinfo(void)
 // Parent process ID, System calls made by the process
 // and size of the process in pages.
 uint64
-sys_set_tickets(void)
+sys_sched_tickets(void)
 {
   int n;
   argint(0, &n);
@@ -167,7 +167,7 @@ sys_set_tickets(void)
 // Parent process ID, System calls made by the process
 // and size of the process in pages.
 uint64
-sys_scheduler_statistics(void)
+sys_sched_statistics(void)
 {
   scheduled_times();
   return 0;

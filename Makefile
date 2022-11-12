@@ -55,7 +55,7 @@ AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
-LAB2 = LOTTERY
+LAB2 = STRIDE
 
 CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb -gdwarf-2
 CFLAGS += -MD
@@ -138,9 +138,6 @@ UPROGS=\
 	$U/_sysinfo_test\
 	$U/_procinfo_test\
 	$U/_lab1_test\
-	$U/_lab2_prog1\
-	$U/_lab2_prog2\
-	$U/_lab2_prog3\
 	$U/_lab2\
 
 fs.img: mkfs/mkfs README $(UPROGS)

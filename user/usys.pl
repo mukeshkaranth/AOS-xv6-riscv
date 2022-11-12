@@ -47,6 +47,6 @@ entry("procinfo");
 
 #LAB-2
 # ticket allocation for process
-entry("set_tickets");
+entry("sched_tickets");
 # scheduler statistics
-entry("scheduler_statistics");
+entry("sched_statistics");

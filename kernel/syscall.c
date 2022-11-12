@@ -107,8 +107,8 @@ extern uint64 sys_close(void);
 extern uint64 sys_salutation(void); // Syscall declaration
 extern uint64 sys_sysinfo(void); // Syscall to fetch system information
 extern uint64 sys_procinfo(void); //Syscall to fetch process information
-extern uint64 sys_set_tickets(void); // Syscall to set tickets for process
-extern uint64 sys_scheduler_statistics(void); // Syscall to fetch scheduler statistics
+extern uint64 sys_sched_tickets(void); // Syscall to set tickets for process
+extern uint64 sys_sched_statistics(void); // Syscall to fetch scheduler statistics
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -137,8 +137,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_salutation]  sys_salutation, // Syscall entry
 [SYS_sysinfo] sys_sysinfo, // System Call for system information
 [SYS_procinfo] sys_procinfo, // System call for Process information
-[SYS_set_tickets] sys_set_tickets, // System call for initializing tickets for process
-[SYS_scheduler_statistics] sys_scheduler_statistics, // System call to get the scheduled statistic of processes.
+[SYS_sched_tickets] sys_sched_tickets, // System call for initializing tickets for process
+[SYS_sched_statistics] sys_sched_statistics, // System call to get the scheduled statistic of processes.
 };
 
 void

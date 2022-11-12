@@ -17,14 +17,14 @@ exit(-1); }
         int n_tickets = atoi(argv[3+i]);
         ret = fork();
         if (ret == 0) { // child process
-            set_tickets(n_tickets);
+            sched_tickets(n_tickets);
 while(1); }
         else { // parent
             proc_pid[i] = ret;
 continue; }
     }
     sleep(sleep_ticks);
-    scheduler_statistics();
+    sched_statistics();
     for (int i = 0; i < n_proc; i++) kill(proc_pid[i]);
     exit(0);
 }
