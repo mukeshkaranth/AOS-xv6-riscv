@@ -5,6 +5,8 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "stdint.h"
+#include "stddef.h"
 
 struct cpu cpus[NCPU];
 
@@ -13,7 +15,12 @@ struct proc proc[NPROC];
 struct proc *initproc;
 
 int nextpid = 1;
+//Next Thread ID
+int nexttid = 1;
+
 struct spinlock pid_lock;
+//spinlock for thread
+struct spinlock tid_lock;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
@@ -51,6 +58,7 @@ procinit(void)
   
   initlock(&pid_lock, "nextpid");
   initlock(&wait_lock, "wait_lock");
+  initlock(&tid_lock, "nexttid");
   for(p = proc; p < &proc[NPROC]; p++) {
       initlock(&p->lock, "proc");
       p->state = UNUSED;
@@ -87,6 +95,20 @@ myproc(void)
   struct proc *p = c->proc;
   pop_off();
   return p;
+}
+
+//New method for allocating new thread ID
+int
+alloctid()
+{
+  int tid;
+  
+  acquire(&tid_lock);
+  tid = nexttid;
+  nexttid = nexttid + 1;
+  release(&tid_lock);
+
+  return tid;
 }
 
 int
@@ -126,6 +148,8 @@ found:
   p->state = USED;
   // To reset count for each process
   p->sysCallCount = 0;
+  // Set Thread ID to 0
+  p->tid = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -151,6 +175,45 @@ found:
   return p;
 }
 
+static struct proc*
+allocproc_thread(void)
+{
+  struct proc *p;
+
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state == UNUSED) {
+      goto found;
+    } else {
+      release(&p->lock);
+    }
+  }
+  return 0;
+
+found:
+  p->pid = allocpid();
+  p->state = USED;
+  // To reset count for each process
+  p->sysCallCount = 0;
+  // Set Thread ID to 0
+  p->tid = alloctid();
+
+  // Allocate a trapframe page.
+  if((p->trapframe = (struct trapframe *)kalloc()) == 0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
+
+  // Set up new context to start executing at forkret,
+  // which returns to user space.
+  memset(&p->context, 0, sizeof(p->context));
+  p->context.ra = (uint64)forkret;
+  p->context.sp = p->kstack + PGSIZE;
+
+  return p;
+}
+
 // free a proc structure and the data hanging from it,
 // including user pages.
 // p->lock must be held.
@@ -160,8 +223,12 @@ freeproc(struct proc *p)
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
-  if(p->pagetable)
+  //Adding condition for a thread
+  if (p->tid && p->pagetable) {
+    uvmunmap(p->pagetable, TRAPFRAME - PGSIZE * (p->tid), 1, 0);
+  } else if(p->pagetable) {
     proc_freepagetable(p->pagetable, p->sz);
+  }
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -327,6 +394,65 @@ fork(void)
   return pid;
 }
 
+// Clone a process from the parent.
+int clone(void * stack)
+{
+  int i, tid;
+  int size = 4096 * sizeof(void);
+  struct proc *np;
+  struct proc *p = myproc();
+
+  if (stack == NULL) {
+    return -1;
+  }
+
+  // Allocate process.
+  if((np = allocproc_thread()) == 0){
+    return -1;
+  }
+
+  np->pagetable = p->pagetable;
+
+  if (mappages(np->pagetable, TRAPFRAME - (PGSIZE * np->tid),
+      PGSIZE, (uint64)(np->trapframe), PTE_R | PTE_W) < 0) {
+    uvmunmap(np->pagetable, TRAMPOLINE, 1, 0);
+    uvmfree(np->pagetable, 0);
+    return 0;
+  }
+
+  np->sz = p->sz;
+
+  // copy saved user registers.
+  *(np->trapframe) = *(p->trapframe);
+
+  np->trapframe->sp = (uint64)(stack + size);
+
+  // Cause fork to return 0 in the child.
+  np->trapframe->a0 = 0;
+
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(p->ofile[i])
+      np->ofile[i] = filedup(p->ofile[i]);
+  np->cwd = idup(p->cwd);
+
+  safestrcpy(np->name, p->name, sizeof(p->name));
+
+  tid = np->tid;
+
+  release(&np->lock);
+
+  acquire(&wait_lock);
+  np->parent = p;
+  release(&wait_lock);
+
+  acquire(&np->lock);
+  np->state = RUNNABLE;
+  release(&np->lock);
+
+  return tid;
+}
+
 // Pass p's abandoned children to init.
 // Caller must hold wait_lock.
 void
@@ -353,12 +479,14 @@ exit(int status)
   if(p == initproc)
     panic("init exiting");
 
-  // Close all open files.
-  for(int fd = 0; fd < NOFILE; fd++){
-    if(p->ofile[fd]){
-      struct file *f = p->ofile[fd];
-      fileclose(f);
-      p->ofile[fd] = 0;
+  // Close all open files if tid = 0.
+  if (p->tid == 0) {
+    for(int fd = 0; fd < NOFILE; fd++){
+      if(p->ofile[fd]){
+        struct file *f = p->ofile[fd];
+        fileclose(f);
+        p->ofile[fd] = 0;
+      }
     }
   }
 
@@ -370,7 +498,9 @@ exit(int status)
   acquire(&wait_lock);
 
   // Give any children to init.
-  reparent(p);
+  if (p->tid == 0) {
+    reparent(p);
+  }
 
   // Parent might be sleeping in wait().
   wakeup(p->parent);

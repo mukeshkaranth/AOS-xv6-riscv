@@ -111,6 +111,7 @@ void            salutation(int n); // Salutation
 void            sysCallNumber(int count); //System Call count
 int             procMemSize(void); // Process memory size
 int             procCount(void); //process count in the system
+int             clone(void * stack); //Process clone function
 
 // swtch.S
 void            swtch(struct context*, struct context*);

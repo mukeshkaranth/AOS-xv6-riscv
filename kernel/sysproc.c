@@ -146,3 +146,10 @@ sys_procinfo(void)
   copyout(process->pagetable, n+8, (char *)&(nPages), sizeof(int));
   return 0;
 }
+
+uint64
+sys_clone(void) {
+  uint64 stack;
+  argaddr(0, &stack);
+  return clone((void *)stack);
+}

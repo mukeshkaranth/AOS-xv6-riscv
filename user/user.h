@@ -26,6 +26,7 @@ int uptime(void);
 int salutation(int); // Salutation for user
 int sysinfo(int); // System Call Information
 int procinfo(struct pinfo *); // Process information
+int clone(void *); // Clone function
 
 // ulib.c
 int stat(const char*, struct stat*);

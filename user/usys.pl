@@ -42,3 +42,5 @@ entry("salutation");
 entry("sysinfo");
 # process information for the user
 entry("procinfo");
+# clone function for the user
+entry("clone");

@@ -107,6 +107,7 @@ extern uint64 sys_close(void);
 extern uint64 sys_salutation(void); // Syscall declaration
 extern uint64 sys_sysinfo(void); // Syscall to fetch system information
 extern uint64 sys_procinfo(void); //Syscall to fetch process information
+extern uint64 sys_clone(void); //Syscall to clone a process
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -135,6 +136,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_salutation]  sys_salutation, // Syscall entry
 [SYS_sysinfo] sys_sysinfo, // System Call for system information
 [SYS_procinfo] sys_procinfo, // System call for Process information
+[SYS_clone] sys_clone, // System call for cloning processes
 };
 
 void
